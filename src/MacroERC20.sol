@@ -23,8 +23,18 @@ contract MacroERC20 is ERC20 {
     /// @notice Given a target and abi encoded data, we replace the first parameter to be the address of the caller
     ///   And we then call the target
     function callWithForwardedData(address target, bytes memory encodedData) public returns (bool, bytes memory) {
-      bytes memory dataToCallWith = _replaceCaller(encodedData);
-      (bool success, bytes memory returnData) = target.call(dataToCallWith);
+      
+      bool success; 
+      bytes memory returnData;
+
+      if(target == address(this)) {
+        forwardedSender = msg.sender;
+        (success, returnData) = target.call(encodedData);
+        forwardedSender = address(this); /// NOTE: To save more gas you need to add a dirty value to the slot above
+      } else {
+        bytes memory dataToCallWith = _replaceCaller(encodedData);
+        (success, returnData) = target.call(encodedData);
+      }      
 
       return (success, returnData);
     }
@@ -45,5 +55,15 @@ contract MacroERC20 is ERC20 {
           require(res, "Must succeed");
         }
       }
+    }
+
+    address forwardedSender;
+
+    function _msgSender() internal view override returns (address) {
+      if(forwardedSender != address(this)) {
+        return forwardedSender;
+      }
+
+      return msg.sender;
     }
 }

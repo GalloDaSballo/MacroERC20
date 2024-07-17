@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import {Test, console} from "forge-std/Test.sol";
-import {MacroERC20} from "src/MacroERC20.sol";
+import {MacroERC20, ERC20} from "src/MacroERC20.sol";
 
 contract LogCaller {
   address public lastCaller;
@@ -58,5 +58,22 @@ contract MacroERC20Test is Test {
 
       token.doTheMacro(allData);
       assertEq(logger.lastCaller(), address(this), "cannot manipulate logger");
+    }
+
+    // forge test --match-test test_an_approve -vvvv
+    function test_an_approve(address randomTarget, uint256 allowanceFlag) public {
+      bytes memory encoded = abi.encodeCall(ERC20.approve, (randomTarget, allowanceFlag));
+
+      MacroERC20.MacroData[] memory allData = new MacroERC20.MacroData[](1);
+
+      MacroERC20.MacroData memory data = MacroERC20.MacroData({
+        target: address(token),
+        encodedData: encoded,
+        requireSuccess: true
+      });
+      allData[0] = data;
+
+      token.doTheMacro(allData);
+      assertEq(token.allowance(address(this), randomTarget), allowanceFlag);
     }
 }
