@@ -1,7 +1,13 @@
 # MacroERC20
 
 An ERC20 with built-in:
-- Multicall with Forwarding, forwards the caller as the first parameter of each function
+- `doTheMacro` - a multi call that passes the msg.sender as the first parameter
+
+TODO
+- Multicall to self with forwarding, to combine transfer, approves, etc...
+
+TODO
+- Mix both of those
 
 ## Risks
 
