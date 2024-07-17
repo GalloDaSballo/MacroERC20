@@ -2,12 +2,7 @@
 
 An ERC20 with built-in:
 - `doTheMacro` - a multi call that passes the msg.sender as the first parameter
-
-TODO
-- Multicall to self with forwarding, to combine transfer, approves, etc...
-
-TODO
-- Mix both of those
+- Calling self enacts a special case that uses an overridden msgSender, without overriding the parameters
 
 ## Risks
 
