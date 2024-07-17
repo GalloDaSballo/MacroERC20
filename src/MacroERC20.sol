@@ -8,16 +8,13 @@ contract MacroERC20 is ERC20 {
     
     /// @dev Replaces the first parameter of AbiEncodedData with the address of the caller
     function _replaceCaller(bytes memory abiEncodedData) internal view returns (bytes memory) {
-      // Make a copy of the data
-      bytes memory copy = abiEncodedData;
-
       // Edit the bytes from 5 to 37 with the msg.sender
       assembly {
         // Length + selector = 32 + 4 = 36
-        mstore(add(copy, 36), caller())
+        mstore(add(abiEncodedData, 36), caller())
       }
 
-      return copy;
+      return abiEncodedData;
     }
 
     /// @notice Given a target and abi encoded data, we replace the first parameter to be the address of the caller
@@ -29,7 +26,7 @@ contract MacroERC20 is ERC20 {
 
       if(target == address(this)) {
         forwardedSender = msg.sender;
-        (success, returnData) = target.call(encodedData);
+        (success, returnData) = target.delegatecall(encodedData);
         forwardedSender = address(this); /// NOTE: To save more gas you need to add a dirty value to the slot above
       } else {
         bytes memory dataToCallWith = _replaceCaller(encodedData);

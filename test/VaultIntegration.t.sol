@@ -25,7 +25,12 @@ contract SampleVault {
 
   function deposit(address from, uint256 amt) external {
     deposits[from] += amt;
-    token.transferFrom(from, address(this), amt);
+    if(msg.sender == address(token)) {
+      token.transferFrom(from, address(this), amt);
+    } else {
+      token.transferFrom(msg.sender, address(this), amt);
+    }
+    
   }
 }
 
