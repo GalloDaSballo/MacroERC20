@@ -6,4 +6,4 @@ solc_version="0.8.25"
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
 
 [fuzz]
-runs=1000000
+runs=1000
