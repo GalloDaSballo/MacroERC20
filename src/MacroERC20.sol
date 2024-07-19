@@ -4,7 +4,9 @@ import {ERC20} from "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 
 contract MacroERC20 is ERC20 {
 
-    constructor(string memory name_, string memory symbol_) ERC20(name_, symbol_) {}
+    constructor(string memory name_, string memory symbol_) ERC20(name_, symbol_) {
+      forwardedSender = address(this);
+    }
     
     /// @dev Replaces the first parameter of AbiEncodedData with the address of the caller
     function _replaceCaller(bytes memory abiEncodedData) internal view returns (bytes memory) {
@@ -16,6 +18,18 @@ contract MacroERC20 is ERC20 {
 
       return abiEncodedData;
     }
+
+    address forwardedSender;
+
+    /// @dev Overrides the _msgSender to forward the caller
+    function _msgSender() internal view override returns (address) {
+      if(forwardedSender != address(this)) {
+        return forwardedSender;
+      }
+
+      return msg.sender;
+    }
+
 
     /// @notice Given a target and abi encoded data, we replace the first parameter to be the address of the caller
     ///   And we then call the target
@@ -54,13 +68,5 @@ contract MacroERC20 is ERC20 {
       }
     }
 
-    address forwardedSender;
 
-    function _msgSender() internal view override returns (address) {
-      if(forwardedSender != address(this)) {
-        return forwardedSender;
-      }
-
-      return msg.sender;
-    }
 }
